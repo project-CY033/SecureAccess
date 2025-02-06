@@ -64,11 +64,7 @@ give all file code
 ---
 ---
 ##  improve : enhanced alerting system that highlights malicious processes in red, provides terminate/ignore options, and allows for right-click context menus. 
-```
-now when any malicious activity  processes executed and  run monitors this high-light with "red color  and send to alert tab  in this tab when user click to the process show two option 1 is  terminate this process and 2nd is ignore , when user select terminate then terminate that process completely and when user select ignore then ignored and remove from the alert tab 
 
-this also show when user  right click to the process   
-```
 
 
 <details>
@@ -76,6 +72,14 @@ this also show when user  right click to the process
 
 ---
 ---
+
+```
+now when any malicious activity  processes executed and  run monitors this high-light with "red color  and send to alert tab  in this tab when user click to the process show two option 1 is  terminate this process and 2nd is ignore , when user select terminate then terminate that process completely and when user select ignore then ignored and remove from the alert tab 
+
+this also show when user  right click to the process   
+```
+
+
 
 Okay, let's implement this enhanced alerting system that highlights malicious processes in red, provides terminate/ignore options, and allows for right-click context menus. This involves changes to the `activity_tracker.py`, `alert_tab.py`, and potentially the `main_window.py` or a shared utility file.
 
