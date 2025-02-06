@@ -23,7 +23,17 @@ python -m venv venv
 pip install PyQt5 scapy psutil
 
 ```
+- ###  Verify the installation by running:
+```
+pip show PyQt5
 
+```
+
+
+- ### Run
+```
+python main.py
+```
 
 
 
