@@ -20,3 +20,113 @@ give full code with file structure
 give all file code
 
 ```
+
+
+
+---
+---
+---
+---
+
+#    improve 1
+
+
+
+
+<details>
+  <summary>Click to see Improvment</summary>
+
+---
+---
+
+</details>
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+---
+---
+---
+# improve 
+```
+now when any malicious activity  processes executed and  run monitors this high-light with "red color  and send to alert tab  in this tab when user click to the process show two option 1 is  terminate this process and 2nd is ignore , when user select terminate then terminate that process completely and when user select ignore then ignored and remove from the alert tab 
+
+this also show when user  right click to the process   
+```
+
+
+<details>
+  <summary>Click to see Improvment</summary>
+
+---
+---
+
+</details>
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+---
+---
+---
+
+#   # improve last
+
+
+
+
+<details>
+  <summary>Click to see Improvment</summary>
+
+---
+---
+
+</details>
+
+---
+
+
+
+
