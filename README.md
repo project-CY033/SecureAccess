@@ -71,8 +71,13 @@ Batch Processing: Handle multiple files at once.
 
 # new feature 
 ```
-Detecting and mitigating clone and fake apps , when user try to install any fack app show alert and block the installation process
+ Detecting and mitigating clone and fake apps , when user try to install any fack app show alert and block the installation process
 after this show detailed information on that why this app is not secure in alert tab
+
+
+add new tab give name "web"  in this tab analysis all browser activity like which site user visit , if this site is not secure new send alert to user  and show red color in this tab with warrign , at the right side add expend arrow so user can see detailed 
+
+or when user try to access  the site or app which is fake or clone then also show  warring to user and send alert add color to look good and user can understand easily  
 ```
 
 
