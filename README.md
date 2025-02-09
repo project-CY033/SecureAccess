@@ -40,3 +40,43 @@ python main.py
 
 
 
+
+
+
+
+
+
+# Neww this update 
+
+
+```
+
+Add a new feature if the user sends any data like a photo,  pdf, video , doc etc (Support multiple file formats (e.g., images, PDFs, documents, videos).) ,extract how much data will send or attached in the  data which is send
+now  updated in  setting tab add new option remove sensitive information from files like photos, PDFs, documents, and videos
+update or add this  in monitoring tab
+Detect sensitive information (e.g., PII, financial data, health information, etc.).
+Remove or redact the sensitive data (e.g., blur, blackout, or delete).
+Ensure data security during processing.
+
+Key Features
+Ensuring Data Security
+Pattern Recognition: Identify patterns like credit card numbers, SSNs, phone numbers, etc.
+Metadata Removal: Strip metadata (e.g., geotags, timestamps) from files.
+Redaction: Replace sensitive data with placeholders or black bars.
+Batch Processing: Handle multiple files at once.
+
+
+
+```
+
+# new feature 
+```
+Detecting and mitigating clone and fake apps , when user try to install any fack app show alert and block the installation process
+after this show detailed information on that why this app is not secure in alert tab
+```
+
+
+
+
+
+
