@@ -46,7 +46,7 @@ python main.py
 
 
 
-# Neww this update 
+# Neww this update nead 
 
 
 ```
