@@ -52,8 +52,8 @@ python main.py
 ```
 
 Add a new feature if the user sends any data like a photo,  pdf, video , doc etc (Support multiple file formats (e.g., images, PDFs, documents, videos).) ,extract how much data will send or attached in the  data which is send
-now  updated in  setting tab add new option remove sensitive information from files like photos, PDFs, documents, and videos
-update or add this  in monitoring tab
+now  updated in  settings tab add new option remove sensitive information from files like photos, PDFs, documents, and videos
+update or add this  in Permission Management tab  with tile "extracted data"
 Detect sensitive information (e.g., PII, financial data, health information, etc.).
 Remove or redact the sensitive data (e.g., blur, blackout, or delete).
 Ensure data security during processing.
