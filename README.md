@@ -82,6 +82,13 @@ or when user try to access  the site or app which is fake or clone then also sho
 
 
 
+# New
+```
 
+web minitoring add start option to start monitoring browser activity to block malicious website, phiishing website, fake website, also show which permission is user the website when user visite add option to terminalte and  add option to block website 
+
+active alert tab to send all information on alert tab
+
+```
 
 
