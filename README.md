@@ -77,7 +77,10 @@ after this show detailed information on that why this app is not secure in alert
 
 add new tab give name "web"  in this tab analysis all browser activity like which site user visit , if this site is not secure new send alert to user  and show red color in this tab with warrign , at the right side add expend arrow so user can see detailed 
 
-or when user try to access  the site or app which is fake or clone then also show  warring to user and send alert add color to look good and user can understand easily  
+or when user try to access  the site or app which is fake or clone then also show  warring to user and send alert add color to look good and user can understand easily
+give full updated code with file structure
+
+give all updated files code
 ```
 
 
@@ -88,6 +91,12 @@ or when user try to access  the site or app which is fake or clone then also sho
 web minitoring add start option to start monitoring browser activity to block malicious website, phiishing website, fake website, also show which permission is user the website when user visite add option to terminalte and  add option to block website 
 
 active alert tab to send all information on alert tab
+
+
+
+give full updated code with file structure
+
+give all updated files code
 
 ```
 
