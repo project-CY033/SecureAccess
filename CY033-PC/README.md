@@ -1,3 +1,4 @@
+```
 CY033-PC/
 ├── main.py
 ├── monitor.py
@@ -6,13 +7,13 @@ CY033-PC/
 ├── access.py
 ├── settings.py
 └── requirements.txt
-└── data_processor.py    # new file 
-└── permission_management.py    # new file 
+└── data_processor.py     
+└── permission_management.py     
+```
 
 
 
-
-
+# installl 
 
 ```
 pip install psutil
@@ -47,9 +48,7 @@ pip install opencv-python-headless
 
 
 
-# CY033-PC - System Monitoring Tool
-
-A comprehensive system monitoring tool with process management, network monitoring, and security alerts.
+ 
 
 ## Features
 - Real-time process monitoring
