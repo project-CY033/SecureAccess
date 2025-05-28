@@ -65,4 +65,4 @@ Data Layer
 - Machine learning models
 - Digital twin simulation
 
-[Continued with detailed explanations of each module...]
+ 
