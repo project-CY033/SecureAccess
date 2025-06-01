@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-tachometer-alt me-2"></i>
+        Security Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDashboard()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- System Overview Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">CPU Usage</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="cpu-usage">{{ stats.cpu_percent }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-microchip fa-2x text-primary"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ stats.cpu_percent }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Memory Usage</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="memory-usage">{{ stats.memory_percent }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-memory fa-2x text-warning"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ stats.memory_percent }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Active Processes</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="process-count">{{ stats.total_processes }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tasks fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Active Alerts</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="alert-count-dashboard">{{ stats.active_alerts }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- System Performance Chart -->
+    <div class="col-xl-8 col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line me-1"></i>
+                Real-time System Performance
+            </div>
+            <div class="card-body">
+                <canvas id="systemChart" width="100%" height="40"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Status -->
+    <div class="col-xl-4 col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-alt me-1"></i>
+                Security Status
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Threat Level</span>
+                        <span class="badge bg-success" id="threat-level">LOW</span>
+                    </div>
+                    <div class="progress mt-1">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 25%" id="threat-progress"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Firewall Status</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Real-time Protection</span>
+                        <span class="badge bg-success">Enabled</span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Last Scan</span>
+                        <span class="text-muted small" id="last-scan">Just now</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Network Activity and Critical Alerts -->
+<div class="row mb-4">
+    <!-- Network Activity -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-network-wired me-1"></i>
+                Network Activity
+            </div>
+            <div class="card-body">
+                <canvas id="networkChart" width="100%" height="50"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Critical Alerts -->
+    <div class="col-xl-6 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Critical Alerts
+            </div>
+            <div class="card-body">
+                <div id="critical-alerts-list">
+                    {% if critical_alerts %}
+                        {% for alert in critical_alerts %}
+                        <div class="alert alert-{{ 'danger' if alert.severity == 'critical' else 'warning' }} alert-dismissible fade show" role="alert">
+                            <strong>{{ alert.title }}</strong><br>
+                            {{ alert.message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" onclick="resolveAlert({{ alert.id }})"></button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center text-muted">
+                            <i class="fas fa-check-circle fa-3x mb-3"></i>
+                            <p>No critical alerts at this time</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Table -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-list me-1"></i>
+        Recent System Activity
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Category</th>
+                        <th>Severity</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table">
+                    <!-- Activity data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

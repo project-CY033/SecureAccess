@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}SecurityAI Scan - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-robot me-2"></i>
+        SecurityAI Advanced Scanning Hub
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshScanResults()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bulkScanModal">
+                <i class="fas fa-layer-group"></i> Bulk Scan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tools Available</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">16</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tools fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Scans Today</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="scans-today">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-search fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Threats Found</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="threats-found">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">AI Accuracy</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">98.7%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-brain fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security Tools Grid -->
+<div class="row">
+    <!-- Reconnaissance Tools -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eye me-1"></i>
+                Reconnaissance & Information Gathering
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('subdomain-enum')">
+                            <div class="tool-icon">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Subdomain Enumeration</h6>
+                                <small class="text-muted">Discover subdomains</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('whois-lookup')">
+                            <div class="tool-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>WHOIS Lookup</h6>
+                                <small class="text-muted">Domain registration info</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('dns-lookup')">
+                            <div class="tool-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>DNS Lookup</h6>
+                                <small class="text-muted">DNS record analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('reverse-ip')">
+                            <div class="tool-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Reverse IP Lookup</h6>
+                                <small class="text-muted">Find hosted domains</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vulnerability Assessment -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-alt me-1"></i>
+                Vulnerability Assessment
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('port-scan')">
+                            <div class="tool-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Port Scanner</h6>
+                                <small class="text-muted">Network port analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('xss-scanner')">
+                            <div class="tool-icon">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>XSS Scanner</h6>
+                                <small class="text-muted">Cross-site scripting</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('api-security')">
+                            <div class="tool-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>API Security Scan</h6>
+                                <small class="text-muted">API vulnerability test</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('wireless-assess')">
+                            <div class="tool-icon">
+                                <i class="fas fa-wifi"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Wireless Assessment</h6>
+                                <small class="text-muted">WiFi security analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Threat Intelligence -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-virus me-1"></i>
+                Threat Intelligence & Analysis
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('virus-total')">
+                            <div class="tool-icon">
+                                <i class="fas fa-bug"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>VirusTotal</h6>
+                                <small class="text-muted">Malware detection</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('shodan-search')">
+                            <div class="tool-icon">
+                                <i class="fas fa-satellite"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>SHODAN Integration</h6>
+                                <small class="text-muted">Internet-wide scanning</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('malware-analysis')">
+                            <div class="tool-icon">
+                                <i class="fas fa-microscope"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Malware Analysis</h6>
+                                <small class="text-muted">Advanced threat analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('insider-threat')">
+                            <div class="tool-icon">
+                                <i class="fas fa-user-secret"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Insider Threat Detection</h6>
+                                <small class="text-muted">Internal security monitoring</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OSINT & Investigation -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-search-plus me-1"></i>
+                OSINT & Digital Investigation
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('email-osint')">
+                            <div class="tool-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Email OSINT</h6>
+                                <small class="text-muted">Email investigation</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('metadata-extract')">
+                            <div class="tool-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Metadata Extraction</h6>
+                                <small class="text-muted">File metadata analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('archived-url')">
+                            <div class="tool-icon">
+                                <i class="fas fa-archive"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Archived URL Viewer</h6>
+                                <small class="text-muted">Historical website data</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="security-tool-card" onclick="openTool('tech-stack')">
+                            <div class="tool-icon">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div class="tool-info">
+                                <h6>Tech Stack Detection</h6>
+                                <small class="text-muted">Website technology analysis</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Scan Results -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-history me-1"></i>
+        Recent Scan Results
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Tool</th>
+                        <th>Target</th>
+                        <th>Status</th>
+                        <th>Findings</th>
+                        <th>Risk Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="scan-results-table">
+                    <tr>
+                        <td>2024-01-20 14:30:15</td>
+                        <td><span class="badge bg-primary">Port Scan</span></td>
+                        <td>192.168.1.100</td>
+                        <td><span class="badge bg-success">Complete</span></td>
+                        <td>3 open ports found</td>
+                        <td><span class="badge bg-warning">Medium</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewScanDetails('port-scan-001')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportScanResult('port-scan-001')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2024-01-20 14:25:42</td>
+                        <td><span class="badge bg-info">Subdomain Enum</span></td>
+                        <td>example.com</td>
+                        <td><span class="badge bg-success">Complete</span></td>
+                        <td>12 subdomains discovered</td>
+                        <td><span class="badge bg-success">Low</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewScanDetails('subdomain-001')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="exportScanResult('subdomain-001')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tool Modal -->
+<div class="modal fade" id="toolModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tool-modal-title">Security Tool</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="tool-modal-body">
+                <!-- Tool interface will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="start-scan-btn" onclick="startScan()">
+                    <i class="fas fa-play"></i> Start Scan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Scan Modal -->
+<div class="modal fade" id="bulkScanModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Security Scan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="bulk-targets" class="form-label">Target List (one per line)</label>
+                    <textarea class="form-control" id="bulk-targets" rows="6" placeholder="Enter domains, IPs, or URLs (one per line)"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Select Tools</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-subdomain" checked>
+                                <label class="form-check-label" for="bulk-subdomain">Subdomain Enumeration</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-port" checked>
+                                <label class="form-check-label" for="bulk-port">Port Scanning</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-dns">
+                                <label class="form-check-label" for="bulk-dns">DNS Lookup</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-whois">
+                                <label class="form-check-label" for="bulk-whois">WHOIS Lookup</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-virus">
+                                <label class="form-check-label" for="bulk-virus">VirusTotal Check</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bulk-tech">
+                                <label class="form-check-label" for="bulk-tech">Tech Stack Detection</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="bulk-scan-progress" style="display: none;">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="bulk-progress-bar"></div>
+                    </div>
+                    <div class="text-center">
+                        <small id="bulk-status-text">Preparing scan...</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="startBulkScan()">
+                    <i class="fas fa-rocket"></i> Start Bulk Scan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/security_scanner.js') }}"></script>
+{% endblock %}

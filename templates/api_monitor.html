@@ -1,0 +1,612 @@
+{% extends "base.html" %}
+
+{% block title %}API Monitor - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-code me-2"></i>
+        API Security Monitor
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshAPIData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="exportAPILogs()">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- API Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Requests</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ stats.total_requests }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exchange-alt fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Success Rate</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ "%.1f"|format(stats.success_rate) }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+                <div class="progress mt-2">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ stats.success_rate }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Avg Response Time</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ stats.avg_response_time }}ms</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Failed Requests</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ stats.failed_requests }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-times-circle fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Analytics Charts -->
+<div class="row mb-4">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line me-1"></i>
+                API Request Volume
+            </div>
+            <div class="card-body">
+                <canvas id="apiVolumeChart" width="100%" height="40"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-pie me-1"></i>
+                Response Status Distribution
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="100%" height="40"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Security Alerts -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                Security Alerts
+            </div>
+            <div class="card-body">
+                <div id="api-security-alerts">
+                    <div class="alert alert-warning">
+                        <strong>Rate Limit Exceeded</strong><br>
+                        <small>IP: 192.168.1.100 - Endpoint: /api/data</small>
+                        <small class="float-end">2 min ago</small>
+                    </div>
+                    <div class="alert alert-danger">
+                        <strong>Unauthorized Access Attempt</strong><br>
+                        <small>IP: 203.0.113.45 - Endpoint: /api/admin</small>
+                        <small class="float-end">5 min ago</small>
+                    </div>
+                    <div class="alert alert-warning">
+                        <strong>Suspicious Payload Detected</strong><br>
+                        <small>IP: 198.51.100.23 - Endpoint: /api/upload</small>
+                        <small class="float-end">12 min ago</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-alt me-1"></i>
+                Top Vulnerable Endpoints
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Risk Level</th>
+                                <th>Incidents</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>/api/admin</td>
+                                <td><span class="badge bg-danger">High</span></td>
+                                <td>23</td>
+                            </tr>
+                            <tr>
+                                <td>/api/upload</td>
+                                <td><span class="badge bg-warning">Medium</span></td>
+                                <td>12</td>
+                            </tr>
+                            <tr>
+                                <td>/api/user/profile</td>
+                                <td><span class="badge bg-warning">Medium</span></td>
+                                <td>8</td>
+                            </tr>
+                            <tr>
+                                <td>/api/data/export</td>
+                                <td><span class="badge bg-info">Low</span></td>
+                                <td>3</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API Call Logs -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-list me-1"></i> API Call Logs</span>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <select class="form-select form-select-sm" id="status-filter">
+                    <option value="">All Status</option>
+                    <option value="2">2xx Success</option>
+                    <option value="4">4xx Client Error</option>
+                    <option value="5">5xx Server Error</option>
+                </select>
+            </div>
+            <div class="input-group input-group-sm" style="width: 250px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="endpoint-search" placeholder="Search endpoints...">
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Status</th>
+                        <th>Response Time</th>
+                        <th>IP Address</th>
+                        <th>Payload Size</th>
+                        <th>User Agent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="api-logs-table">
+                    {% for log in api_logs %}
+                    <tr>
+                        <td>{{ log.created_at.strftime('%H:%M:%S') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if log.method == 'GET' else 'success' if log.method == 'POST' else 'warning' if log.method == 'PUT' else 'danger' if log.method == 'DELETE' else 'info' }}">
+                                {{ log.method }}
+                            </span>
+                        </td>
+                        <td>
+                            <code>{{ log.endpoint }}</code>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if log.status_code < 300 else 'warning' if log.status_code < 400 else 'danger' }}">
+                                {{ log.status_code }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="{{ 'text-success' if log.response_time < 100 else 'text-warning' if log.response_time < 500 else 'text-danger' }}">
+                                {{ "%.0f"|format(log.response_time or 0) }}ms
+                            </span>
+                        </td>
+                        <td>
+                            <small class="font-monospace">{{ log.ip_address or 'N/A' }}</small>
+                        </td>
+                        <td>{{ (log.payload_size / 1024)|round(1) if log.payload_size else '0' }} KB</td>
+                        <td>
+                            <small title="{{ log.user_agent }}">
+                                {{ (log.user_agent[:30] + '...') if log.user_agent and log.user_agent|length > 30 else (log.user_agent or 'N/A') }}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewAPIDetails('{{ log.id }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if log.status_code >= 400 %}
+                            <button class="btn btn-sm btn-outline-warning" onclick="blockIP('{{ log.ip_address }}')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- API Security Scanner Modal -->
+<div class="modal fade" id="apiScannerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">API Security Scanner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label for="api-url" class="form-label">API Endpoint URL</label>
+                        <input type="url" class="form-control" id="api-url" placeholder="https://api.example.com/endpoint">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="api-method" class="form-label">Method</label>
+                        <select class="form-select" id="api-method">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="api-headers" class="form-label">Headers (JSON format)</label>
+                    <textarea class="form-control" id="api-headers" rows="3" placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="api-payload" class="form-label">Payload (for POST/PUT)</label>
+                    <textarea class="form-control" id="api-payload" rows="4" placeholder='{"key": "value"}'></textarea>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="sql-injection-test" checked>
+                            <label class="form-check-label" for="sql-injection-test">
+                                SQL Injection Test
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="xss-test" checked>
+                            <label class="form-check-label" for="xss-test">
+                                XSS Vulnerability Test
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="auth-bypass-test" checked>
+                            <label class="form-check-label" for="auth-bypass-test">
+                                Authentication Bypass
+                            </label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="rate-limit-test">
+                            <label class="form-check-label" for="rate-limit-test">
+                                Rate Limiting Test
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="scan-progress-api" style="display: none;">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" id="api-progress-bar"></div>
+                    </div>
+                    <div class="text-center">
+                        <small id="scan-status-text">Initializing scan...</small>
+                    </div>
+                </div>
+                
+                <div id="api-scan-results" style="display: none;">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="startAPIScan()">
+                    <i class="fas fa-search"></i> Start Security Scan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Action Button for API Scanner -->
+<div class="position-fixed bottom-0 end-0 p-3">
+    <button class="btn btn-primary btn-lg rounded-circle" data-bs-toggle="modal" data-bs-target="#apiScannerModal" title="API Security Scanner">
+        <i class="fas fa-shield-alt"></i>
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// API monitoring JavaScript
+let apiVolumeChart, statusChart;
+
+// Initialize charts
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAPICharts();
+    initializeFilters();
+    startRealTimeUpdates();
+});
+
+function initializeAPICharts() {
+    // API Volume Chart
+    const apiVolumeCtx = document.getElementById('apiVolumeChart').getContext('2d');
+    apiVolumeChart = new Chart(apiVolumeCtx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+            datasets: [{
+                label: 'Requests per Hour',
+                data: Array.from({length: 24}, () => Math.floor(Math.random() * 1000)),
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff' }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+
+    // Status Distribution Chart
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    statusChart = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['2xx Success', '4xx Client Error', '5xx Server Error'],
+            datasets: [{
+                data: [85, 12, 3],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(220, 53, 69, 0.8)'
+                ],
+                borderWidth: 2,
+                borderColor: '#1a1a1a'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff' }
+                }
+            }
+        }
+    });
+}
+
+function initializeFilters() {
+    document.getElementById('endpoint-search').addEventListener('input', filterAPILogs);
+    document.getElementById('status-filter').addEventListener('change', filterAPILogs);
+}
+
+function filterAPILogs() {
+    const searchTerm = document.getElementById('endpoint-search').value.toLowerCase();
+    const statusFilter = document.getElementById('status-filter').value;
+    
+    const rows = document.querySelectorAll('#api-logs-table tr');
+    
+    rows.forEach(row => {
+        const endpoint = row.cells[2]?.textContent.toLowerCase() || '';
+        const status = row.cells[3]?.textContent || '';
+        
+        let show = true;
+        
+        if (searchTerm && !endpoint.includes(searchTerm)) {
+            show = false;
+        }
+        
+        if (statusFilter && !status.startsWith(statusFilter)) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function refreshAPIData() {
+    location.reload();
+}
+
+function exportAPILogs() {
+    showToast('Exporting API logs...', 'info');
+    
+    // Simulate export process
+    setTimeout(() => {
+        const csvContent = "data:text/csv;charset=utf-8," + 
+            "Timestamp,Method,Endpoint,Status,Response Time,IP Address\n" +
+            "2024-01-20 10:30:00,GET,/api/users,200,120ms,192.168.1.100\n" +
+            "2024-01-20 10:31:15,POST,/api/login,401,85ms,203.0.113.45\n";
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "api_logs_" + new Date().toISOString().slice(0,10) + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('API logs exported successfully', 'success');
+    }, 2000);
+}
+
+function viewAPIDetails(logId) {
+    showToast('Loading API call details...', 'info');
+    // In production, fetch detailed log information
+}
+
+function blockIP(ipAddress) {
+    if (confirm(`Block all requests from IP ${ipAddress}?`)) {
+        showToast(`IP ${ipAddress} has been blocked`, 'warning');
+        // In production, add IP to blocklist
+    }
+}
+
+function startAPIScan() {
+    const url = document.getElementById('api-url').value;
+    if (!url) {
+        showToast('Please enter an API endpoint URL', 'warning');
+        return;
+    }
+    
+    const progressDiv = document.getElementById('scan-progress-api');
+    const resultsDiv = document.getElementById('api-scan-results');
+    const progressBar = document.getElementById('api-progress-bar');
+    const statusText = document.getElementById('scan-status-text');
+    
+    progressDiv.style.display = 'block';
+    resultsDiv.style.display = 'none';
+    
+    const tests = [
+        'Testing authentication bypass...',
+        'Checking for SQL injection vulnerabilities...',
+        'Scanning for XSS vulnerabilities...',
+        'Testing rate limiting...',
+        'Analyzing response headers...',
+        'Checking SSL/TLS configuration...'
+    ];
+    
+    let currentTest = 0;
+    let progress = 0;
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        
+        if (currentTest < tests.length) {
+            statusText.textContent = tests[currentTest];
+            if (progress > (currentTest + 1) * (100 / tests.length)) {
+                currentTest++;
+            }
+        }
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            progressDiv.style.display = 'none';
+            
+            // Display scan results
+            resultsDiv.innerHTML = `
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Security Issues Found</h6>
+                    <ul class="mb-0">
+                        <li><strong>Medium Risk:</strong> Missing security headers (X-Frame-Options, X-XSS-Protection)</li>
+                        <li><strong>Low Risk:</strong> Verbose error messages may leak information</li>
+                        <li><strong>Info:</strong> Rate limiting appears to be properly configured</li>
+                    </ul>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Security Score: 75/100</h6>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Recommendations:</h6>
+                        <small>
+                            • Add security headers<br>
+                            • Implement generic error messages<br>
+                            • Consider API versioning
+                        </small>
+                    </div>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+        }
+    }, 500);
+}
+
+function startRealTimeUpdates() {
+    // Update API statistics every 30 seconds
+    setInterval(() => {
+        // In production, fetch real-time data
+        updateAPIStats();
+    }, 30000);
+}
+
+function updateAPIStats() {
+    // Simulate real-time updates
+    const totalRequests = document.querySelector('.card-body .h5');
+    if (totalRequests) {
+        const current = parseInt(totalRequests.textContent);
+        totalRequests.textContent = current + Math.floor(Math.random() * 10);
+    }
+}
+</script>
+{% endblock %}

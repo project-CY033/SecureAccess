@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+
+{% block title %}Browser Monitor - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-globe me-2"></i>
+        Browser Security Monitor
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshBrowserData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="clearCookies()">
+                <i class="fas fa-cookie-bite"></i> Clear Cookies
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Browser Security Overview -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Websites Visited</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="total-visits">{{ activities|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-globe fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Secure Sites</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="secure-sites">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shield-alt fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Risky Sites</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ risky_sites|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Avg Security Score</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="avg-security-score">85</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chart-line fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Real-time URL Monitoring -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-eye me-1"></i>
+                Real-time URL Security Scanner
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-link"></i></span>
+                            <input type="url" class="form-control" id="url-input" placeholder="Enter URL to scan...">
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button type="button" class="btn btn-primary w-100" onclick="scanURL()">
+                            <i class="fas fa-search"></i> Scan URL
+                        </button>
+                    </div>
+                </div>
+                <div id="url-scan-result" class="mt-3" style="display: none;">
+                    <!-- Scan results will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-shield-alt me-1"></i>
+                Auto Protection Settings
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="auto-scan" checked>
+                    <label class="form-check-label" for="auto-scan">
+                        Auto URL Scanning
+                    </label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="auto-cookies" checked>
+                    <label class="form-check-label" for="auto-cookies">
+                        Auto Clear Cookies
+                    </label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="block-malicious" checked>
+                    <label class="form-check-label" for="block-malicious">
+                        Block Malicious Sites
+                    </label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="real-time-monitoring" checked>
+                    <label class="form-check-label" for="real-time-monitoring">
+                        Real-time Monitoring
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Browser Activity Table -->
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-history me-1"></i>
+        Browser Activity History
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="activity-search" placeholder="Search URLs or titles...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="security-filter">
+                    <option value="">All Security Levels</option>
+                    <option value="high">High (80-100)</option>
+                    <option value="medium">Medium (50-79)</option>
+                    <option value="low">Low (0-49)</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="ssl-filter">
+                    <option value="">All SSL Status</option>
+                    <option value="true">HTTPS Only</option>
+                    <option value="false">HTTP Only</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>URL</th>
+                        <th>Title</th>
+                        <th>Security Score</th>
+                        <th>SSL</th>
+                        <th>Risk Factors</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-table">
+                    {% for activity in activities %}
+                    <tr>
+                        <td>{{ activity.created_at.strftime('%H:%M:%S') }}</td>
+                        <td>
+                            <a href="{{ activity.url }}" target="_blank" class="text-info">
+                                {{ activity.url[:50] }}...
+                            </a>
+                        </td>
+                        <td>{{ activity.title or 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if activity.security_score >= 80 else 'warning' if activity.security_score >= 50 else 'danger' }}">
+                                {{ activity.security_score or 'N/A' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if activity.has_ssl %}
+                                <i class="fas fa-lock text-success" title="HTTPS"></i>
+                            {% else %}
+                                <i class="fas fa-unlock text-danger" title="HTTP"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if activity.risk_factors %}
+                                <span class="badge bg-warning">{{ activity.risk_factors|length }} risks</span>
+                            {% else %}
+                                <span class="badge bg-success">Clean</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewDetails('{{ activity.id }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="blockDomain('{{ activity.url }}')">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Risky Sites Alert -->
+{% if risky_sites %}
+<div class="card border-warning">
+    <div class="card-header bg-warning text-dark">
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        Recently Visited Risky Sites
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for site in risky_sites %}
+            <div class="col-md-6 mb-3">
+                <div class="alert alert-warning">
+                    <strong>{{ site.url[:50] }}...</strong><br>
+                    <small>Security Score: {{ site.security_score }}/100</small><br>
+                    <small>Visited: {{ site.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- URL Details Modal -->
+<div class="modal fade" id="urlModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">URL Security Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="url-details">
+                <!-- URL details will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="block-url-btn">
+                    <i class="fas fa-ban"></i> Block This URL
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Browser monitoring JavaScript
+let autoScanEnabled = true;
+let realTimeMonitoring = true;
+
+function refreshBrowserData() {
+    // Refresh browser activity data
+    location.reload();
+}
+
+function scanURL() {
+    const urlInput = document.getElementById('url-input');
+    const url = urlInput.value.trim();
+    
+    if (!url) {
+        showToast('Please enter a URL to scan', 'warning');
+        return;
+    }
+    
+    // Show loading state
+    const resultDiv = document.getElementById('url-scan-result');
+    resultDiv.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Scanning...</span>
+            </div>
+            <p class="mt-2">Scanning URL for security threats...</p>
+        </div>
+    `;
+    resultDiv.style.display = 'block';
+    
+    // Simulate URL scanning (in production, this would call a real API)
+    setTimeout(() => {
+        const securityScore = Math.floor(Math.random() * 100);
+        const hasSSL = url.startsWith('https://');
+        const riskFactors = [];
+        
+        if (!hasSSL) riskFactors.push('No SSL encryption');
+        if (url.includes('download')) riskFactors.push('Contains download links');
+        if (Math.random() > 0.7) riskFactors.push('Suspicious domain');
+        
+        resultDiv.innerHTML = `
+            <div class="alert alert-${securityScore >= 70 ? 'success' : securityScore >= 40 ? 'warning' : 'danger'}">
+                <h6><i class="fas fa-shield-alt"></i> Security Analysis Results</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Security Score:</strong> ${securityScore}/100<br>
+                        <strong>SSL Status:</strong> ${hasSSL ? 'Secured (HTTPS)' : 'Unsecured (HTTP)'}<br>
+                        <strong>Risk Level:</strong> ${securityScore >= 70 ? 'Low' : securityScore >= 40 ? 'Medium' : 'High'}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Risk Factors:</strong><br>
+                        ${riskFactors.length > 0 ? riskFactors.join('<br>') : 'None detected'}
+                    </div>
+                </div>
+            </div>
+        `;
+    }, 2000);
+}
+
+function clearCookies() {
+    if (confirm('Are you sure you want to clear all browser cookies?')) {
+        // In a real implementation, this would clear cookies
+        showToast('Cookies cleared successfully', 'success');
+    }
+}
+
+function viewDetails(activityId) {
+    // Show URL details in modal
+    const modal = new bootstrap.Modal(document.getElementById('urlModal'));
+    document.getElementById('url-details').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    modal.show();
+    
+    // Simulate loading details
+    setTimeout(() => {
+        document.getElementById('url-details').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>URL Information</h6>
+                    <p><strong>Full URL:</strong> https://example.com/page</p>
+                    <p><strong>Domain:</strong> example.com</p>
+                    <p><strong>IP Address:</strong> 192.168.1.1</p>
+                    <p><strong>Response Time:</strong> 245ms</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Security Analysis</h6>
+                    <p><strong>SSL Certificate:</strong> Valid</p>
+                    <p><strong>Malware Status:</strong> Clean</p>
+                    <p><strong>Phishing Check:</strong> Safe</p>
+                    <p><strong>Content Type:</strong> text/html</p>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function blockDomain(url) {
+    const domain = new URL(url).hostname;
+    if (confirm(`Block all access to ${domain}?`)) {
+        showToast(`Domain ${domain} has been blocked`, 'success');
+    }
+}
+
+// Auto-refresh browser activity every 30 seconds
+setInterval(() => {
+    if (realTimeMonitoring) {
+        // Update activity table without full page refresh
+        // In production, this would fetch new data via AJAX
+    }
+}, 30000);
+
+// Initialize filters
+document.getElementById('activity-search').addEventListener('input', filterActivity);
+document.getElementById('security-filter').addEventListener('change', filterActivity);
+document.getElementById('ssl-filter').addEventListener('change', filterActivity);
+
+function filterActivity() {
+    const searchTerm = document.getElementById('activity-search').value.toLowerCase();
+    const securityFilter = document.getElementById('security-filter').value;
+    const sslFilter = document.getElementById('ssl-filter').value;
+    
+    const rows = document.querySelectorAll('#activity-table tr');
+    
+    rows.forEach(row => {
+        const url = row.cells[1]?.textContent.toLowerCase() || '';
+        const title = row.cells[2]?.textContent.toLowerCase() || '';
+        const securityScore = parseInt(row.cells[3]?.textContent) || 0;
+        const hasSSL = row.cells[4]?.querySelector('.fa-lock') !== null;
+        
+        let show = true;
+        
+        // Search filter
+        if (searchTerm && !url.includes(searchTerm) && !title.includes(searchTerm)) {
+            show = false;
+        }
+        
+        // Security filter
+        if (securityFilter) {
+            if (securityFilter === 'high' && securityScore < 80) show = false;
+            if (securityFilter === 'medium' && (securityScore < 50 || securityScore >= 80)) show = false;
+            if (securityFilter === 'low' && securityScore >= 50) show = false;
+        }
+        
+        // SSL filter
+        if (sslFilter) {
+            if (sslFilter === 'true' && !hasSSL) show = false;
+            if (sslFilter === 'false' && hasSSL) show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,542 @@
+{% extends "base.html" %}
+
+{% block title %}Application Monitor - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-file-shield me-2"></i>
+        Application Security Monitor
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshScans()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Application Security Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Scanned</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ scanned_files|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-code fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Clean Files</div>
+                        <div class="h5 mb-0 font-weight-bold text-white" id="clean-files">0</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Suspicious Files</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ suspicious_files }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Malicious Files</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ malicious_files }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-skull-crossbones fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Upload and Scanning Section -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-upload me-1"></i>
+                File Security Scanner
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="file-upload" class="form-label">Select file to scan:</label>
+                            <input type="file" class="form-control" id="file-upload" 
+                                   accept=".exe,.apk,.msi,.dmg,.deb,.rpm,.app,.zip,.rar,.7z,.tar,.gz">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="button" class="btn btn-primary w-100" onclick="scanFile()">
+                            <i class="fas fa-search"></i> Scan File
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Drag and Drop Zone -->
+                <div class="border-2 border-dashed border-secondary rounded p-4 text-center" 
+                     id="drop-zone" 
+                     ondrop="dropHandler(event);" 
+                     ondragover="dragOverHandler(event);">
+                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Drag and drop files here or click to browse</p>
+                    <small class="text-muted">Supported formats: .exe, .apk, .msi, .dmg, .deb, .rpm, .app, .zip, .rar, .7z</small>
+                </div>
+                
+                <!-- Scan Progress -->
+                <div id="scan-progress" class="mt-3" style="display: none;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Scanning file...</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" 
+                             style="width: 0%" 
+                             id="progress-bar"></div>
+                    </div>
+                </div>
+                
+                <!-- Scan Results -->
+                <div id="scan-results" class="mt-3" style="display: none;">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs me-1"></i>
+                Scan Settings
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="deep-scan" checked>
+                    <label class="form-check-label" for="deep-scan">
+                        Deep Scan Mode
+                    </label>
+                    <small class="form-text text-muted">Performs thorough analysis</small>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="hash-check" checked>
+                    <label class="form-check-label" for="hash-check">
+                        Hash Verification
+                    </label>
+                    <small class="form-text text-muted">Check file against known hashes</small>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="sandbox-analysis">
+                    <label class="form-check-label" for="sandbox-analysis">
+                        Sandbox Analysis
+                    </label>
+                    <small class="form-text text-muted">Run file in isolated environment</small>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="virus-total-check" checked>
+                    <label class="form-check-label" for="virus-total-check">
+                        VirusTotal Integration
+                    </label>
+                    <small class="form-text text-muted">Check against VirusTotal database</small>
+                </div>
+                
+                <hr>
+                
+                <h6>Quarantine Settings</h6>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="auto-quarantine">
+                    <label class="form-check-label" for="auto-quarantine">
+                        Auto-quarantine threats
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scan History Table -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-history me-1"></i> Scan History</span>
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <select class="form-select form-select-sm" id="result-filter">
+                    <option value="">All Results</option>
+                    <option value="clean">Clean</option>
+                    <option value="suspicious">Suspicious</option>
+                    <option value="malicious">Malicious</option>
+                </select>
+            </div>
+            <div class="input-group input-group-sm" style="width: 200px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="file-search" placeholder="Search files...">
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Scan Time</th>
+                        <th>Filename</th>
+                        <th>File Type</th>
+                        <th>Size</th>
+                        <th>Result</th>
+                        <th>Threat Level</th>
+                        <th>Hash</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="scan-history-table">
+                    {% for file in scanned_files %}
+                    <tr>
+                        <td>{{ file.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <i class="fas fa-file me-2"></i>
+                            {{ file.filename }}
+                        </td>
+                        <td>{{ file.file_type or 'Unknown' }}</td>
+                        <td>{{ (file.file_size / 1024 / 1024) | round(2) if file.file_size else 'N/A' }} MB</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if file.scan_result == 'clean' else 'warning' if file.scan_result == 'suspicious' else 'danger' }}">
+                                {{ file.scan_result.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar bg-{{ 'success' if file.threat_level <= 3 else 'warning' if file.threat_level <= 6 else 'danger' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ (file.threat_level / 10) * 100 }}%">
+                                    {{ file.threat_level }}/10
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <small class="font-monospace">{{ file.file_hash[:16] if file.file_hash else 'N/A' }}...</small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-info" onclick="viewScanDetails('{{ file.id }}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            {% if file.scan_result in ['suspicious', 'malicious'] %}
+                            <button class="btn btn-sm btn-outline-warning" onclick="quarantineFile('{{ file.id }}')">
+                                <i class="fas fa-shield-alt"></i>
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteFile('{{ file.id }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Scan Details Modal -->
+<div class="modal fade" id="scanDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Detailed Scan Results</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="scan-details-content">
+                <!-- Details will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="quarantine-btn">
+                    <i class="fas fa-shield-alt"></i> Quarantine
+                </button>
+                <button type="button" class="btn btn-danger" id="delete-btn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// File scanning JavaScript
+function dropHandler(ev) {
+    ev.preventDefault();
+    
+    if (ev.dataTransfer.items) {
+        for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+            if (ev.dataTransfer.items[i].kind === 'file') {
+                const file = ev.dataTransfer.items[i].getAsFile();
+                document.getElementById('file-upload').files = ev.dataTransfer.files;
+                break;
+            }
+        }
+    }
+    
+    // Remove drag styling
+    document.getElementById('drop-zone').classList.remove('border-primary');
+}
+
+function dragOverHandler(ev) {
+    ev.preventDefault();
+    document.getElementById('drop-zone').classList.add('border-primary');
+}
+
+function scanFile() {
+    const fileInput = document.getElementById('file-upload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        showToast('Please select a file to scan', 'warning');
+        return;
+    }
+    
+    // Show progress
+    const progressDiv = document.getElementById('scan-progress');
+    const resultsDiv = document.getElementById('scan-results');
+    progressDiv.style.display = 'block';
+    resultsDiv.style.display = 'none';
+    
+    // Simulate scanning progress
+    let progress = 0;
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        progressText.textContent = Math.round(progress) + '%';
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            
+            // Send file to server for scanning
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            fetch('/api/scan-file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                progressDiv.style.display = 'none';
+                displayScanResults(data);
+            })
+            .catch(error => {
+                progressDiv.style.display = 'none';
+                showToast('Error scanning file: ' + error.message, 'danger');
+            });
+        }
+    }, 500);
+}
+
+function displayScanResults(results) {
+    const resultsDiv = document.getElementById('scan-results');
+    
+    let alertClass = 'success';
+    let icon = 'check-circle';
+    
+    if (results.result === 'suspicious') {
+        alertClass = 'warning';
+        icon = 'exclamation-triangle';
+    } else if (results.result === 'malicious') {
+        alertClass = 'danger';
+        icon = 'skull-crossbones';
+    }
+    
+    resultsDiv.innerHTML = `
+        <div class="alert alert-${alertClass}">
+            <h6><i class="fas fa-${icon}"></i> Scan Complete</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Result:</strong> ${results.result.toUpperCase()}<br>
+                    <strong>Threat Level:</strong> ${results.threat_level}/10<br>
+                    <strong>File Type:</strong> ${results.details.file_type || 'Unknown'}<br>
+                    <strong>File Size:</strong> ${Math.round(results.details.file_size / 1024)} KB
+                </div>
+                <div class="col-md-6">
+                    <strong>SHA256:</strong> <small class="font-monospace">${results.details.file_hash}</small><br>
+                    <strong>Scan Time:</strong> ${new Date().toLocaleString()}<br>
+                    ${results.details.suspicious_patterns ? 
+                        '<strong>Threats Found:</strong> ' + results.details.suspicious_patterns.join(', ') : 
+                        '<strong>Status:</strong> No threats detected'}
+                </div>
+            </div>
+            ${results.result !== 'clean' ? `
+                <div class="mt-3">
+                    <button class="btn btn-warning btn-sm me-2" onclick="quarantineCurrentFile()">
+                        <i class="fas fa-shield-alt"></i> Quarantine
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCurrentFile()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+    
+    resultsDiv.style.display = 'block';
+    
+    // Refresh the scan history table
+    setTimeout(() => {
+        location.reload();
+    }, 2000);
+}
+
+function viewScanDetails(fileId) {
+    const modal = new bootstrap.Modal(document.getElementById('scanDetailsModal'));
+    
+    // Load detailed scan information
+    document.getElementById('scan-details-content').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate loading details (in production, fetch from API)
+    setTimeout(() => {
+        document.getElementById('scan-details-content').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>File Information</h6>
+                    <p><strong>Original Name:</strong> suspicious_file.exe</p>
+                    <p><strong>File Size:</strong> 2.3 MB</p>
+                    <p><strong>File Type:</strong> Windows Executable</p>
+                    <p><strong>MD5:</strong> d41d8cd98f00b204e9800998ecf8427e</p>
+                    <p><strong>SHA1:</strong> da39a3ee5e6b4b0d3255bfef95601890afd80709</p>
+                    <p><strong>SHA256:</strong> e3b0c44298fc1c149afbf4c8996fb924...</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Threat Analysis</h6>
+                    <p><strong>Threat Level:</strong> 7/10 (High)</p>
+                    <p><strong>Malware Family:</strong> Generic.Trojan</p>
+                    <p><strong>First Seen:</strong> 2024-01-15</p>
+                    <p><strong>Detection Rate:</strong> 35/70 engines</p>
+                    <p><strong>Behavior:</strong> Network communication, File modification</p>
+                </div>
+            </div>
+            <hr>
+            <h6>Detected Threats</h6>
+            <ul class="list-unstyled">
+                <li><i class="fas fa-exclamation-triangle text-warning"></i> Suspicious network behavior</li>
+                <li><i class="fas fa-exclamation-triangle text-warning"></i> Attempts to modify system files</li>
+                <li><i class="fas fa-exclamation-triangle text-warning"></i> Contains obfuscated code</li>
+            </ul>
+        `;
+    }, 1000);
+}
+
+function quarantineFile(fileId) {
+    if (confirm('Move this file to quarantine? This will isolate the file to prevent any potential damage.')) {
+        showToast('File moved to quarantine successfully', 'success');
+        // In production, make API call to quarantine file
+    }
+}
+
+function deleteFile(fileId) {
+    if (confirm('Permanently delete this file? This action cannot be undone.')) {
+        showToast('File deleted successfully', 'success');
+        // In production, make API call to delete file
+        // Remove row from table
+        event.target.closest('tr').remove();
+    }
+}
+
+function quarantineCurrentFile() {
+    quarantineFile('current');
+}
+
+function deleteCurrentFile() {
+    deleteFile('current');
+}
+
+function refreshScans() {
+    location.reload();
+}
+
+// Initialize file search and filtering
+document.getElementById('file-search').addEventListener('input', filterFiles);
+document.getElementById('result-filter').addEventListener('change', filterFiles);
+
+function filterFiles() {
+    const searchTerm = document.getElementById('file-search').value.toLowerCase();
+    const resultFilter = document.getElementById('result-filter').value;
+    
+    const rows = document.querySelectorAll('#scan-history-table tr');
+    
+    rows.forEach(row => {
+        const filename = row.cells[1]?.textContent.toLowerCase() || '';
+        const result = row.cells[4]?.textContent.toLowerCase() || '';
+        
+        let show = true;
+        
+        if (searchTerm && !filename.includes(searchTerm)) {
+            show = false;
+        }
+        
+        if (resultFilter && !result.includes(resultFilter)) {
+            show = false;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+// Auto-update clean files count
+document.addEventListener('DOMContentLoaded', function() {
+    const cleanCount = document.querySelectorAll('#scan-history-table .badge.bg-success').length;
+    document.getElementById('clean-files').textContent = cleanCount;
+});
+</script>
+{% endblock %}

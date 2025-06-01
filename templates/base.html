@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CyberGuard Pro - Advanced Security Monitoring{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-shield-alt me-2"></i>
+                CyberGuard Pro
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('process_monitor') }}">
+                            <i class="fas fa-tasks"></i> Processes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('browser_monitor') }}">
+                            <i class="fas fa-globe"></i> Browser
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('application_monitor') }}">
+                            <i class="fas fa-file-shield"></i> Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('app_permissions') }}">
+                            <i class="fas fa-shield-alt"></i> App Permissions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('api_monitor') }}">
+                            <i class="fas fa-code"></i> API Monitor
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('alerts') }}">
+                            <i class="fas fa-exclamation-triangle"></i> Alerts
+                            <span class="badge bg-danger ms-1" id="alert-count">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('security_ai_scan') }}">
+                            <i class="fas fa-robot"></i> SecurityAI Scan
+                        </a>
+                    </li>
+                </ul>
+                
+                <!-- Real-time status indicators -->
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <span class="badge bg-success" id="connection-status">
+                            <i class="fas fa-wifi"></i> Connected
+                        </span>
+                    </div>
+                    <div class="me-3">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            <span id="current-time"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid main-content">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>System Status</span>
+                    </h6>
+                    
+                    <!-- Quick Stats -->
+                    <div class="px-3 mb-3">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-body p-2">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="text-success">
+                                            <i class="fas fa-microchip"></i>
+                                            <div class="small">CPU</div>
+                                            <div class="fw-bold" id="sidebar-cpu">0%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-warning">
+                                            <i class="fas fa-memory"></i>
+                                            <div class="small">RAM</div>
+                                            <div class="fw-bold" id="sidebar-memory">0%</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-info">
+                                            <i class="fas fa-network-wired"></i>
+                                            <div class="small">Net</div>
+                                            <div class="fw-bold" id="sidebar-network">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Alerts -->
+                    <h6 class="sidebar-heading px-3 mb-1 text-muted">
+                        <span>Recent Alerts</span>
+                    </h6>
+                    <div class="px-3">
+                        <div id="sidebar-alerts" class="alert-list">
+                            <!-- Alerts will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Page Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="pt-3">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
+        <!-- Toasts will be added here dynamically -->
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

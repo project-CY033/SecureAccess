@@ -1,0 +1,726 @@
+{% extends "base.html" %}
+
+{% block title %}Security Alerts - CyberGuard Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Security Alerts & Notifications
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshAlerts()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-warning" onclick="markAllRead()">
+                <i class="fas fa-check-double"></i> Mark All Read
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearResolvedAlerts()">
+                <i class="fas fa-trash"></i> Clear Resolved
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-danger">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Critical Alerts</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ alert_counts.critical }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-skull-crossbones fa-2x text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">High Priority</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ alert_counts.high }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Medium Priority</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ alert_counts.medium }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-info-circle fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Low Priority</div>
+                        <div class="h5 mb-0 font-weight-bold text-white">{{ alert_counts.low }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert Filtering -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <select class="form-select" id="severity-filter">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="category-filter">
+            <option value="">All Categories</option>
+            <option value="process">Process</option>
+            <option value="network">Network</option>
+            <option value="file">File System</option>
+            <option value="browser">Browser</option>
+            <option value="api">API</option>
+            <option value="system">System</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" id="status-filter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="resolved">Resolved</option>
+            <option value="dismissed">Dismissed</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="alert-search" placeholder="Search alerts...">
+        </div>
+    </div>
+</div>
+
+<!-- Active Alerts -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-bell me-1"></i> Active Alerts</span>
+        <span class="badge bg-danger" id="active-alert-count">{{ active_alerts|length }}</span>
+    </div>
+    <div class="card-body">
+        {% if active_alerts %}
+            <div id="active-alerts-list">
+                {% for alert in active_alerts %}
+                <div class="alert alert-{{ 'danger' if alert.severity == 'critical' else 'warning' if alert.severity == 'high' else 'info' if alert.severity == 'medium' else 'secondary' }} alert-dismissible fade show" 
+                     data-alert-id="{{ alert.id }}"
+                     data-severity="{{ alert.severity }}"
+                     data-category="{{ alert.category }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="alert-heading mb-1">
+                                <i class="fas fa-{{ 'skull-crossbones' if alert.severity == 'critical' else 'exclamation-triangle' if alert.severity == 'high' else 'info-circle' if alert.severity == 'medium' else 'check-circle' }}"></i>
+                                {{ alert.title }}
+                                <span class="badge bg-{{ 'danger' if alert.severity == 'critical' else 'warning' if alert.severity == 'high' else 'info' if alert.severity == 'medium' else 'secondary' }} ms-2">
+                                    {{ alert.severity.upper() }}
+                                </span>
+                                <span class="badge bg-dark ms-1">{{ alert.category.upper() }}</span>
+                            </h6>
+                            <p class="mb-2">{{ alert.message }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-clock"></i> {{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                            </small>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="resolveAlert({{ alert.id }})">
+                                    <i class="fas fa-check"></i> Resolve
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="dismissAlert({{ alert.id }})">
+                                    <i class="fas fa-times"></i> Dismiss
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="viewAlertDetails({{ alert.id }})">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-warning" href="#" onclick="createRule({{ alert.id }})">
+                                    <i class="fas fa-shield-alt"></i> Create Rule
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-check-circle fa-4x mb-3"></i>
+                <h5>No Active Alerts</h5>
+                <p>Your system is secure. All alerts have been resolved.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Real-time Alert Monitor -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-chart-line me-1"></i>
+                Alert Trends (Last 24 Hours)
+            </div>
+            <div class="card-body">
+                <canvas id="alertTrendChart" width="100%" height="40"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cog me-1"></i>
+                Alert Settings
+            </div>
+            <div class="card-body">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="email-notifications" checked>
+                    <label class="form-check-label" for="email-notifications">
+                        Email Notifications
+                    </label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="desktop-notifications" checked>
+                    <label class="form-check-label" for="desktop-notifications">
+                        Desktop Notifications
+                    </label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="sound-alerts">
+                    <label class="form-check-label" for="sound-alerts">
+                        Sound Alerts
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label for="alert-threshold" class="form-label">Alert Threshold</label>
+                    <select class="form-select" id="alert-threshold">
+                        <option value="low">Low (All alerts)</option>
+                        <option value="medium" selected>Medium (Medium and above)</option>
+                        <option value="high">High (High and Critical only)</option>
+                        <option value="critical">Critical (Critical only)</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary btn-sm w-100" onclick="saveAlertSettings()">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recently Resolved Alerts -->
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-history me-1"></i>
+        Recently Resolved Alerts
+    </div>
+    <div class="card-body">
+        {% if resolved_alerts %}
+            <div class="table-responsive">
+                <table class="table table-dark table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Severity</th>
+                            <th>Category</th>
+                            <th>Created</th>
+                            <th>Resolved</th>
+                            <th>Duration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for alert in resolved_alerts %}
+                        <tr>
+                            <td>{{ alert.title }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if alert.severity == 'critical' else 'warning' if alert.severity == 'high' else 'info' if alert.severity == 'medium' else 'secondary' }}">
+                                    {{ alert.severity.upper() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-dark">{{ alert.category.upper() }}</span>
+                            </td>
+                            <td>{{ alert.created_at.strftime('%m/%d %H:%M') }}</td>
+                            <td>{{ alert.resolved_at.strftime('%m/%d %H:%M') if alert.resolved_at else 'N/A' }}</td>
+                            <td>
+                                {% if alert.resolved_at %}
+                                    {{ ((alert.resolved_at - alert.created_at).total_seconds() / 60) | round(1) }} min
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" onclick="viewAlertDetails({{ alert.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-3">
+                <p>No recently resolved alerts.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Alert Details Modal -->
+<div class="modal fade" id="alertDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Alert Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="alert-details-content">
+                <!-- Details will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="resolve-alert-btn">
+                    <i class="fas fa-check"></i> Resolve Alert
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Alert Rule Modal -->
+<div class="modal fade" id="createRuleModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Alert Rule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="rule-name" class="form-label">Rule Name</label>
+                    <input type="text" class="form-control" id="rule-name" placeholder="Enter rule name">
+                </div>
+                <div class="mb-3">
+                    <label for="rule-condition" class="form-label">Condition</label>
+                    <select class="form-select" id="rule-condition">
+                        <option value="suppress">Suppress similar alerts</option>
+                        <option value="escalate">Auto-escalate alerts</option>
+                        <option value="notify">Send notification</option>
+                        <option value="action">Execute action</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="rule-description" class="form-label">Description</label>
+                    <textarea class="form-control" id="rule-description" rows="3" placeholder="Describe what this rule does"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAlertRule()">
+                    <i class="fas fa-save"></i> Create Rule
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Alert management JavaScript
+let alertTrendChart;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAlertChart();
+    initializeFilters();
+    startRealTimeAlerts();
+    requestNotificationPermission();
+});
+
+function initializeAlertChart() {
+    const ctx = document.getElementById('alertTrendChart').getContext('2d');
+    alertTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+            datasets: [
+                {
+                    label: 'Critical',
+                    data: Array.from({length: 24}, () => Math.floor(Math.random() * 5)),
+                    borderColor: 'rgb(220, 53, 69)',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.1
+                },
+                {
+                    label: 'High',
+                    data: Array.from({length: 24}, () => Math.floor(Math.random() * 10)),
+                    borderColor: 'rgb(255, 193, 7)',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    tension: 0.1
+                },
+                {
+                    label: 'Medium',
+                    data: Array.from({length: 24}, () => Math.floor(Math.random() * 15)),
+                    borderColor: 'rgb(13, 202, 240)',
+                    backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#fff' }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        }
+    });
+}
+
+function initializeFilters() {
+    document.getElementById('severity-filter').addEventListener('change', filterAlerts);
+    document.getElementById('category-filter').addEventListener('change', filterAlerts);
+    document.getElementById('status-filter').addEventListener('change', filterAlerts);
+    document.getElementById('alert-search').addEventListener('input', filterAlerts);
+}
+
+function filterAlerts() {
+    const severityFilter = document.getElementById('severity-filter').value;
+    const categoryFilter = document.getElementById('category-filter').value;
+    const statusFilter = document.getElementById('status-filter').value;
+    const searchTerm = document.getElementById('alert-search').value.toLowerCase();
+    
+    const alerts = document.querySelectorAll('#active-alerts-list .alert');
+    
+    alerts.forEach(alert => {
+        const severity = alert.dataset.severity;
+        const category = alert.dataset.category;
+        const title = alert.querySelector('.alert-heading').textContent.toLowerCase();
+        const message = alert.querySelector('p').textContent.toLowerCase();
+        
+        let show = true;
+        
+        if (severityFilter && severity !== severityFilter) show = false;
+        if (categoryFilter && category !== categoryFilter) show = false;
+        if (searchTerm && !title.includes(searchTerm) && !message.includes(searchTerm)) show = false;
+        
+        alert.style.display = show ? '' : 'none';
+    });
+}
+
+function resolveAlert(alertId) {
+    fetch('/api/resolve-alert', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ alert_id: alertId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Alert resolved successfully', 'success');
+            document.querySelector(`[data-alert-id="${alertId}"]`).remove();
+            updateAlertCounts();
+        } else {
+            showToast('Error resolving alert: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        showToast('Error resolving alert: ' + error.message, 'danger');
+    });
+}
+
+function dismissAlert(alertId) {
+    if (confirm('Are you sure you want to dismiss this alert?')) {
+        document.querySelector(`[data-alert-id="${alertId}"]`).remove();
+        updateAlertCounts();
+        showToast('Alert dismissed', 'info');
+    }
+}
+
+function viewAlertDetails(alertId) {
+    const modal = new bootstrap.Modal(document.getElementById('alertDetailsModal'));
+    
+    document.getElementById('alert-details-content').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate loading alert details
+    setTimeout(() => {
+        document.getElementById('alert-details-content').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Alert Information</h6>
+                    <p><strong>ID:</strong> ${alertId}</p>
+                    <p><strong>Type:</strong> Security Threat</p>
+                    <p><strong>Source:</strong> Process Monitor</p>
+                    <p><strong>Affected System:</strong> Local Machine</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Threat Details</h6>
+                    <p><strong>Risk Level:</strong> High</p>
+                    <p><strong>Confidence:</strong> 87%</p>
+                    <p><strong>Impact:</strong> Data Exfiltration</p>
+                    <p><strong>MITRE ATT&CK:</strong> T1005</p>
+                </div>
+            </div>
+            <hr>
+            <h6>Recommended Actions</h6>
+            <ul>
+                <li>Immediately terminate the suspicious process</li>
+                <li>Scan the system for additional threats</li>
+                <li>Review network logs for suspicious activity</li>
+                <li>Update security policies</li>
+            </ul>
+            <h6>Technical Details</h6>
+            <pre class="bg-dark p-3 rounded"><code>Process: suspicious_app.exe
+PID: 1234
+Command Line: C:\\temp\\suspicious_app.exe --stealth
+Hash: d41d8cd98f00b204e9800998ecf8427e</code></pre>
+        `;
+    }, 1000);
+}
+
+function createRule(alertId) {
+    const modal = new bootstrap.Modal(document.getElementById('createRuleModal'));
+    modal.show();
+}
+
+function saveAlertRule() {
+    const ruleName = document.getElementById('rule-name').value;
+    const ruleCondition = document.getElementById('rule-condition').value;
+    const ruleDescription = document.getElementById('rule-description').value;
+    
+    if (!ruleName) {
+        showToast('Please enter a rule name', 'warning');
+        return;
+    }
+    
+    showToast('Alert rule created successfully', 'success');
+    bootstrap.Modal.getInstance(document.getElementById('createRuleModal')).hide();
+}
+
+function markAllRead() {
+    if (confirm('Mark all alerts as read?')) {
+        showToast('All alerts marked as read', 'success');
+    }
+}
+
+function clearResolvedAlerts() {
+    if (confirm('Clear all resolved alerts? This action cannot be undone.')) {
+        showToast('Resolved alerts cleared', 'success');
+        location.reload();
+    }
+}
+
+function saveAlertSettings() {
+    const settings = {
+        email: document.getElementById('email-notifications').checked,
+        desktop: document.getElementById('desktop-notifications').checked,
+        sound: document.getElementById('sound-alerts').checked,
+        threshold: document.getElementById('alert-threshold').value
+    };
+    
+    localStorage.setItem('alertSettings', JSON.stringify(settings));
+    showToast('Alert settings saved', 'success');
+}
+
+function refreshAlerts() {
+    location.reload();
+}
+
+function updateAlertCounts() {
+    const activeAlerts = document.querySelectorAll('#active-alerts-list .alert:not([style*="display: none"])');
+    document.getElementById('active-alert-count').textContent = activeAlerts.length;
+}
+
+function requestNotificationPermission() {
+    if ("Notification" in window) {
+        if (Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }
+}
+
+function showDesktopNotification(title, message, severity) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        const notification = new Notification(title, {
+            body: message,
+            icon: '/static/icons/alert.png',
+            badge: '/static/icons/badge.png'
+        });
+        
+        setTimeout(() => notification.close(), 5000);
+    }
+}
+
+function startRealTimeAlerts() {
+    // Listen for real-time alerts via WebSocket
+    if (typeof socket !== 'undefined') {
+        socket.on('new_alert', function(data) {
+            addNewAlert(data);
+            
+            // Show desktop notification if enabled
+            const settings = JSON.parse(localStorage.getItem('alertSettings') || '{"desktop": true}');
+            if (settings.desktop) {
+                showDesktopNotification(data.title, data.message, data.severity);
+            }
+            
+            // Play sound if enabled
+            if (settings.sound) {
+                playAlertSound(data.severity);
+            }
+        });
+    }
+}
+
+function addNewAlert(alertData) {
+    const alertsContainer = document.getElementById('active-alerts-list');
+    
+    const alertHtml = `
+        <div class="alert alert-${getSeverityClass(alertData.severity)} alert-dismissible fade show" 
+             data-alert-id="${alertData.id || 'new'}"
+             data-severity="${alertData.severity}"
+             data-category="${alertData.category}">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h6 class="alert-heading mb-1">
+                        <i class="fas fa-${getSeverityIcon(alertData.severity)}"></i>
+                        ${alertData.title}
+                        <span class="badge bg-${getSeverityClass(alertData.severity)} ms-2">
+                            ${alertData.severity.toUpperCase()}
+                        </span>
+                        <span class="badge bg-dark ms-1">${alertData.category.toUpperCase()}</span>
+                    </h6>
+                    <p class="mb-2">${alertData.message}</p>
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i> Just now
+                    </small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    alertsContainer.insertAdjacentHTML('afterbegin', alertHtml);
+    updateAlertCounts();
+}
+
+function getSeverityClass(severity) {
+    const classes = {
+        'critical': 'danger',
+        'high': 'warning',
+        'medium': 'info',
+        'low': 'secondary'
+    };
+    return classes[severity] || 'secondary';
+}
+
+function getSeverityIcon(severity) {
+    const icons = {
+        'critical': 'skull-crossbones',
+        'high': 'exclamation-triangle',
+        'medium': 'info-circle',
+        'low': 'check-circle'
+    };
+    return icons[severity] || 'info-circle';
+}
+
+function playAlertSound(severity) {
+    // Simple beep sound implementation
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    const frequency = severity === 'critical' ? 1000 : severity === 'high' ? 800 : 600;
+    oscillator.frequency.value = frequency;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+}
+
+// Load saved settings on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedSettings = JSON.parse(localStorage.getItem('alertSettings') || '{}');
+    
+    if (savedSettings.email !== undefined) {
+        document.getElementById('email-notifications').checked = savedSettings.email;
+    }
+    if (savedSettings.desktop !== undefined) {
+        document.getElementById('desktop-notifications').checked = savedSettings.desktop;
+    }
+    if (savedSettings.sound !== undefined) {
+        document.getElementById('sound-alerts').checked = savedSettings.sound;
+    }
+    if (savedSettings.threshold) {
+        document.getElementById('alert-threshold').value = savedSettings.threshold;
+    }
+});
+</script>
+{% endblock %}
