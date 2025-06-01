@@ -73,7 +73,18 @@ See individual documentation files for each component:
 ![System Monitor - visual selection](https://github.com/user-attachments/assets/0e7259a6-f298-42fe-968f-6e304e98090b)
 
 
+# Process Monitor
+![Process Monitor](https://github.com/user-attachments/assets/d3c42edb-cf3f-4e8f-88c9-88afca60d97f)
+
+
+# Network Monitor
+
+![Network Monitor](https://github.com/user-attachments/assets/8b80f263-f5c7-4eb2-846c-585ce6b6c553)
+
+
 # 
+
+
 
 
 
