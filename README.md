@@ -4,19 +4,14 @@
 ## Overview
 SecureAccess is an advanced cybersecurity monitoring and protection suite built with Python Flask, providing real-time system monitoring, threat detection, and comprehensive security tools.
 
-## Architecture
-```
-SecureAccess/
-├── app.py                 
-├── main.py                
-├── routes.py              
-├── monitor.py            
-├── scanner.py           
-├── data_protection.py     
-├── templates/             
-├── static/               
-└── docs/                
-```
+# SecureAccess – Prototype Workflow 
+
+![Secure Access work flow](https://github.com/user-attachments/assets/2a7e32c9-58bd-44d6-9331-6806417ea200)
+
+
+
+---
+ 
 
 ## Core Components
 
