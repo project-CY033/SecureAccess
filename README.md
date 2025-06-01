@@ -7,15 +7,15 @@ SecureAccess is an advanced cybersecurity monitoring and protection suite built 
 ## Architecture
 ```
 SecureAccess/
-├── app.py                 # Flask application entry point
-├── main.py               # Application launcher
-├── routes.py             # API routes and endpoints
-├── monitor.py            # Core monitoring functions
-├── scanner.py            # File and malware scanning
-├── data_protection.py    # Data privacy and protection
-├── templates/            # HTML templates
-├── static/              # CSS, JS, and assets
-└── docs/                # Documentation files
+├── app.py                 
+├── main.py                
+├── routes.py              
+├── monitor.py            
+├── scanner.py           
+├── data_protection.py     
+├── templates/             
+├── static/               
+└── docs/                
 ```
 
 ## Core Components
