@@ -121,42 +121,7 @@ def analyze_connection_security(remote_ip):
     return security_analysis
 ```
 
-### Frontend Updates (JavaScript)
-```javascript
-function loadNetworkData() {
-    fetch('/api/network-stats')
-        .then(response => response.json())
-        .then(data => {
-            updateNetworkDisplay(data);
-            updateConnectionsTable(data.connections);
-            updateNetworkInterfaces(data.interfaces);
-            updateSecurityAnalysis(data);
-        });
-}
-
-function updateConnectionsTable(connections) {
-    const tbody = document.getElementById('connections-table');
-    tbody.innerHTML = '';
-    
-    connections.forEach(conn => {
-        const row = document.createElement('tr');
-        const isSuspicious = analyzeSuspiciousConnection(conn);
-        
-        row.innerHTML = `
-            <td>${conn.local_address}</td>
-            <td>${conn.remote_address}</td>
-            <td><span class="badge bg-${getStatusColor(conn.status)}">${conn.status}</span></td>
-            <td>${conn.type}</td>
-            <td>${conn.pid || 'N/A'}</td>
-            <td>
-                ${isSuspicious ? '<i class="fas fa-exclamation-triangle text-warning"></i>' : '<i class="fas fa-check text-success"></i>'}
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-```
-
+  
 ## Security Analysis Engine
 
 ### 1. Threat Detection Algorithms
