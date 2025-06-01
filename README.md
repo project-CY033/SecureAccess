@@ -1,7 +1,8 @@
-# CyberShieldPro Security Suite Documentation
+# SecureAccess
+
 
 ## Overview
-CyberShieldPro is an advanced cybersecurity monitoring and protection suite built with Python Flask, providing real-time system monitoring, threat detection, and comprehensive security tools.
+SecureAccess is an advanced cybersecurity monitoring and protection suite built with Python Flask, providing real-time system monitoring, threat detection, and comprehensive security tools.
 
 ## Architecture
 ```
@@ -53,7 +54,7 @@ Each page has detailed documentation covering:
 - Usage instructions
 
 See individual documentation files for each component:
-- [Dashboard](dashboard.md)
+- [Dashboard](.dashboard.md)
 - [System Monitor](system_monitor.md)
 - [Network Monitor](network_monitor.md)
 - [Process Monitor](process_monitor.md)
