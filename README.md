@@ -54,16 +54,17 @@ Each page has detailed documentation covering:
 - Usage instructions
 
 See individual documentation files for each component:
-- [Dashboard](.dashboard.md)
-- [System Monitor](system_monitor.md)
-- [Network Monitor](network_monitor.md)
-- [Process Monitor](process_monitor.md)
-- [File Scanner](file_scanner.md)
+- [Dashboard](./Documentation/dashboard.md)
+- [Dashboard page](./Documentation/dashboard_page.md)
+- [System Monitor](./Documentation/system_monitor.md)
+- [Vulnerability Monitor](./Documentation/vulnerability_scanner.md)
+- [Process Monitor](./Documentation/process_monitor.md)
+- [File Scanner](./Documentation/file_scanner.md)
 - [Browser Monitor](browser_monitor.md)
-- [Data Protection](data_protection.md)
-- [Application Monitoring](app_monitoring.md)
+- [Network Monitor](./Documentation/network_monitor.md)
+- [Browser Monitor](./Documentation/browser_monitor.md)
 - [Cybersecurity Tools](cybersecurity_tools.md)
-- [Security Alerts](security_alerts.md)
+- [System Monitor](./Documentation/system_monitor.md)
 
 ## Getting Started
 1. Install dependencies: `pip install -r requirements.txt`
