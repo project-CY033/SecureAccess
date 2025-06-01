@@ -33,7 +33,7 @@ A comprehensive cybersecurity monitoring platform built with Flask that provides
 
 The platform follows a modular architecture with separated concerns:
  
- 
+
 
 ## Quick Start
 
@@ -73,7 +73,7 @@ The platform implements multiple layers of security analysis and monitoring. All
 
 ## Deployment
 
-Deploy on Replit for seamless hosting and automatic dependency management.
+ 
 
 ## License
 

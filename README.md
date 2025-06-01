@@ -1,8 +1,35 @@
-# SecureAccess
+# SecureAccess Monitoring Platform
 
 
 ## Overview
-SecureAccess is an advanced cybersecurity monitoring and protection suite built with Python Flask, providing real-time system monitoring, threat detection, and comprehensive security tools.
+A SecureAccess monitoring platform built with Flask that provides real-time system monitoring, network traffic analysis, application scanning, and advanced security tools. The platform implements AI-enhanced threat detection, real-time monitoring, and automated security analysis capabilities.
+
+### Core Monitoring Capabilities
+- **Real-time System Monitoring**: CPU, memory, disk usage tracking with performance metrics
+- **Advanced Process Monitoring**: Malicious activity detection with risk assessment algorithms
+- **Network Traffic Analysis**: Connection monitoring with security threat evaluation
+- **Application Security Scanning**: APK/EXE file analysis with comprehensive threat detection
+- **Browser Security Monitoring**: Automatic website security checks and activity tracking
+- **Application Permissions Analysis**: Hidden permission detection and risk assessment
+
+
+### Security Intelligence
+- **SecurityAI Tools Collection**: AI-enhanced cybersecurity tools including subdomain enumeration
+- **Real-time Threat Detection**: Automated analysis of suspicious activities
+- **Comprehensive Alert System**: Multi-level notification system with severity classification
+- **API Security Monitoring**: Detailed usage statistics and vulnerability scanning
+
+## Technology Stack
+
+- **Backend**: Python Flask with SQLAlchemy ORM
+- **Frontend**: Bootstrap 5 with real-time JavaScript updates
+- **Database**: SQLite with comprehensive data models
+- **Security Libraries**: psutil, requests, dns, cryptography
+- **Real-time Communication**: WebSocket integration for live updates
+
+
+
+
 
 # SecureAccess – Prototype Workflow 
 
@@ -11,42 +38,22 @@ SecureAccess is an advanced cybersecurity monitoring and protection suite built 
 
 
 ---
- 
 
-## Core Components
+## Quick Start
 
-### 1. Real-time Monitoring Engine
-- System resource monitoring (CPU, memory, disk)
-- Network activity tracking
-- Process monitoring and management
-- Browser activity surveillance
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-### 2. Security Analysis Engine
-- File scanning and threat detection
-- Malware analysis and signature detection
-- Application monitoring for fake/clone detection
-- Vulnerability assessment tools
+2. Initialize the database:
+   ```bash
+   python main.py
+   ```
 
-### 3. Data Protection Module
-- Sensitive data detection and redaction
-- Privacy breach monitoring
-- Data classification and handling
-- Compliance checking
+3. Access the platform at http://localhost:5000
 
-### 4. Cybersecurity Tools Collection
-- Network reconnaissance tools
-- OSINT (Open Source Intelligence) gathering
-- Vulnerability scanners
-- Threat intelligence integration
 
-## Documentation Files
-
-Each page has detailed documentation covering:
-- Algorithm explanations
-- Workflow diagrams
-- Implementation details
-- Security considerations
-- Usage instructions
 
 See individual documentation files for each component:
 - [Dashboard](./Documentation/dashboard.md)
@@ -85,12 +92,6 @@ See individual documentation files for each component:
 
 ---
 
-
-
-## Getting Started
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the application: `python main.py`
-3. Access the web interface at `http://localhost:5000`
 
 ## Security Features
 - Real-time threat detection
