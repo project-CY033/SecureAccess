@@ -66,6 +66,21 @@ See individual documentation files for each component:
 - [Cybersecurity Tools](cybersecurity_tools.md)
 - [System Monitor](./Documentation/system_monitor.md)
 
+--- 
+# Projec Work Flow 
+# System Monitor
+
+![System Monitor - visual selection](https://github.com/user-attachments/assets/0e7259a6-f298-42fe-968f-6e304e98090b)
+
+
+# 
+
+
+
+---
+
+
+
 ## Getting Started
 1. Install dependencies: `pip install -r requirements.txt`
 2. Run the application: `python main.py`
