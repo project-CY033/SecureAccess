@@ -168,69 +168,6 @@ def terminate_process(pid):
         return {'success': False, 'error': str(e)}
 ```
 
-### Frontend Interface (JavaScript)
-```javascript
-function loadProcessData() {
-    fetch('/api/processes')
-        .then(response => response.json())
-        .then(data => {
-            updateProcessDisplay(data);
-            updateProcessTable(data.processes);
-        });
-}
-
-function updateProcessTable(processes) {
-    const tbody = document.getElementById('process-table');
-    tbody.innerHTML = '';
-    
-    processes.forEach(proc => {
-        const row = document.createElement('tr');
-        const threatClass = getThreatClass(proc.security?.threat_level);
-        
-        row.innerHTML = `
-            <td>${proc.pid}</td>
-            <td>${proc.name}</td>
-            <td>${proc.username || 'N/A'}</td>
-            <td>${(proc.cpu_percent || 0).toFixed(1)}%</td>
-            <td>${formatBytes(proc.memory_info?.rss || 0)}</td>
-            <td><span class="badge bg-${threatClass}">${proc.security?.threat_level || 'unknown'}</span></td>
-            <td>
-                <button class="btn btn-sm btn-outline-info" onclick="showProcessDetails(${proc.pid})">
-                    <i class="fas fa-info"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-danger" onclick="confirmTerminateProcess(${proc.pid}, '${proc.name}')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-
-function confirmTerminateProcess(pid, name) {
-    if (confirm(`Are you sure you want to terminate process "${name}" (PID: ${pid})?`)) {
-        terminateProcessById(pid);
-    }
-}
-
-function terminateProcessById(pid) {
-    fetch('/api/terminate-process', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({pid: pid})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Process terminated successfully', 'success');
-            loadProcessData(); // Refresh process list
-        } else {
-            showNotification(`Error: ${data.error}`, 'error');
-        }
-    });
-}
-```
-
 ## Security Analysis Framework
 
 ### 1. Behavioral Analysis
