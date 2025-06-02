@@ -1,7 +1,7 @@
 # SecureAccess Monitoring Platform
 
 <p align="center">
-  <img src="./image/logo.png" alt="SecureAccess" width="300" height="250">
+  <img src="https://github.com/project-CY033/SecureAccess/blob/main/image/secureaccess-logo.svg" alt="SecureAccess" width="300" height="250">
 </p>
 
 <!-- Embed this SVG below in your repo as a separate `.svg` file or inline in a webpage -->
