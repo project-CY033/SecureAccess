@@ -60,6 +60,28 @@ A SecureAccess monitoring platform built with Flask that provides real-time syst
    pip install -r requirements.txt
    ```
 
+# Other way for Package Installation Instructions 
+ 
+
+# Install Required Packages one by one
+```
+pip install email-validator 
+pip install flask-socketio 
+pip install flask 
+pip install flask-sqlalchemy 
+pip install gunicorn 
+pip install psycopg2-binary 
+pip install werkzeug 
+pip install psutil 
+pip install requests 
+pip install python-magic 
+pip install dnspython 
+pip install sqlalchemy
+pip install aiohttp
+```
+
+   
+
 2. Initialize the database:
    ```bash
    python main.py
