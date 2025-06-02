@@ -1,5 +1,48 @@
 # SecureAccess Monitoring Platform
 
+---
+<p align="center">
+  <img src="https://secureaccess-logo-placeholder.svg" alt="SecureAccess" width="300" height="80">
+</p>
+
+<!-- Embed this SVG below in your repo as a separate `.svg` file or inline in a webpage -->
+
+<svg width="300" height="80" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text { 
+      font-family: 'Segoe UI', sans-serif; 
+      font-size: 40px; 
+      fill: white;
+      animation: fadein 2s ease-in-out infinite alternate;
+    }
+    .shield {
+      fill: #00C9A7;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+    .background {
+      fill: #1a1a1a;
+    }
+    @keyframes fadein {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+  <rect class="background" width="600" height="150" rx="10" />
+  <g transform="translate(50,75)">
+    <polygon class="shield" points="0,-40 30,-20 30,20 0,40 -30,20 -30,-20" />
+    <circle cx="0" cy="0" r="10" fill="#ffffff" />
+  </g>
+  <text x="120" y="90" class="text">SecureAccess</text>
+</svg>
+
+
+---
+
 
 ## Overview
 A SecureAccess monitoring platform built with Flask that provides real-time system monitoring, network traffic analysis, application scanning, and advanced security tools. The platform implements AI-enhanced threat detection, real-time monitoring, and automated security analysis capabilities.
