@@ -56,17 +56,17 @@ A SecureAccess monitoring platform built with Flask that provides real-time syst
 
 
 See individual documentation files for each component:
-- [Dashboard](./Documentation/dashboard.md)
-- [Dashboard page](./Documentation/dashboard_page.md)
-- [System Monitor](./Documentation/system_monitor.md)
-- [Vulnerability Monitor](./Documentation/vulnerability_scanner.md)
-- [Process Monitor](./Documentation/process_monitor.md)
-- [File Scanner](./Documentation/file_scanner.md)
-- [Browser Monitor](browser_monitor.md)
-- [Network Monitor](./Documentation/network_monitor.md)
-- [Browser Monitor](./Documentation/browser_monitor.md)
-- [Cybersecurity Tools](cybersecurity_tools.md)
-- [System Monitor](./Documentation/system_monitor.md)
+- [Dashboard](./Doc/dashboard.md)
+- [Application Permissions - Permission Tracking and Analysis](./Doc/app-permissions.md)
+- [API Monitor - Comprehensive API Security and Monitoring](./Doc/api-monitor.md)
+- [Application Scanner - Advanced File and Application Analysis](./Doc/app-scanner.md)
+- [Process Monitor - Advanced Process Analysis and Threat Detection](./Doc/process-monitor.md)
+- [System Monitor - Real-time System Metrics](./Doc/system-monitor.md)
+- [Browser Monitor - Web Security Monitoring](./Doc/browser-monitor.md)
+- [SecurityAI Tools - AI-Enhanced Security Tools Collection](./Doc/security-ai-scan.md)
+- [Network Monitor - Advanced Network Traffic Analysis](./Doc/network-monitor.md)
+- [Alerts System - Notification and Alert Management](./Doc/alerts.md)
+ 
 
 --- 
 # Projec Work Flow 
