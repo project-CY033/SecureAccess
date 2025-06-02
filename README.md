@@ -33,7 +33,8 @@ A SecureAccess monitoring platform built with Flask that provides real-time syst
 
 # SecureAccess – Prototype Workflow 
 
-![Secure Access work flow](https://github.com/user-attachments/assets/2a7e32c9-58bd-44d6-9331-6806417ea200)
+
+![SEcure New](https://github.com/user-attachments/assets/88815e17-44d5-44ee-be78-4793df5ad976)
 
 
 
