@@ -1,44 +1,17 @@
 # SecureAccess Monitoring Platform
 
 <p align="center">
-  <img src="https://github.com/project-CY033/SecureAccess/blob/main/image/secureaccess-logo.svg" alt="SecureAccess" width="300" height="250">
+  <img src="https://github.com/project-CY033/SecureAccess/raw/main/image/secureaccess-logo.svg" alt="SecureAccess Animated Logo" width="300">
+  <br>
+  <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/python-3.8%2B-blueviolet" alt="Python">
 </p>
 
-<!-- Embed this SVG below in your repo as a separate `.svg` file or inline in a webpage -->
+<h1 align="center">SecureAccess Monitoring Platform</h1>
+<h3 align="center">AI-Powered Cybersecurity with Real-Time Threat Detection</h3>
 
-<svg width="300" height="80" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .text { 
-      font-family: 'Segoe UI', sans-serif; 
-      font-size: 40px; 
-      fill: white;
-      animation: fadein 2s ease-in-out infinite alternate;
-    }
-    .shield {
-      fill: #00C9A7;
-      animation: pulse 1.5s infinite ease-in-out;
-    }
-    .background {
-      fill: #1a1a1a;
-    }
-    @keyframes fadein {
-      0% { opacity: 0.4; }
-      100% { opacity: 1; }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-  </style>
-  <rect class="background" width="600" height="150" rx="10" />
-  <g transform="translate(50,75)">
-    <polygon class="shield" points="0,-40 30,-20 30,20 0,40 -30,20 -30,-20" />
-    <circle cx="0" cy="0" r="10" fill="#ffffff" />
-  </g>
-  <text x="120" y="90" class="text">SecureAccess</text>
-</svg>
-
+---
 
  
 
