@@ -2,7 +2,7 @@
 
 ---
 <p align="center">
-  <img src="./image/logo.png" alt="SecureAccess" width="300" height="80">
+  <img src="./image/logo.png" alt="SecureAccess" width="300" height="250">
 </p>
 
 <!-- Embed this SVG below in your repo as a separate `.svg` file or inline in a webpage -->
