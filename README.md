@@ -1,6 +1,5 @@
 # SecureAccess Monitoring Platform
 
----
 <p align="center">
   <img src="./image/logo.png" alt="SecureAccess" width="300" height="250">
 </p>
@@ -41,7 +40,7 @@
 </svg>
 
 
----
+ 
 
 
 ## Overview
