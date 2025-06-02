@@ -1,7 +1,5 @@
-# SecureAccess Monitoring Platform
-
 <p align="center">
-  <img src="https://github.com/project-CY033/SecureAccess/raw/main/image/secureaccess-logo.svg" alt="SecureAccess Animated Logo" width="300">
+  <img src="https://github.com/project-CY033/SecureAccess/raw/main/image/secureaccess-logo.svg" alt="SecureAccess Animated Logo" width="350" >
   <br>
   <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
